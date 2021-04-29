@@ -4,10 +4,20 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
+/**
+ * Maneja todas las conexiones con la base de datos
+ * 
+ * Referencias y documentación:
+ * http://baro3495.blogspot.com/2012/09/como-instalar-sqlite-en-eclipse-ide.html	Instalación SQLite
+ * https://www.sqlitetutorial.net/sqlite-java/create-database/						Creación de base de datos
+ * https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/					Conexión a la base de datos
+ *
+ */
 public class DBConnection {
 	/**
-     * Create the database
+     * Crea la base de datos
      * 
      * @param url Ruta completa en donde se creara la base de datos
      */
@@ -29,19 +39,18 @@ public class DBConnection {
     /**
      * Se conecta a la base de datos si existe, si no existe la crea
      * y despues se conecta
-     * 
-     * @param containerFolder Ruta de la carpeta que contiene la base de datos
-     * @param databaseName Nombre de la base de datos
-     * @example connect("C:/db/", "test.db"
      */
-	public static void connect(String containerFolder, String databaseName) {
+	private static Connection connect() {
+		String containerFolder = "C:/db/";
+		String databaseName = "test.db";
+
+		Connection conn = null;
 		// Construimos la ruta completa para acceder a la base de datos
 		String url = containerFolder + databaseName;
 		File file = new File(url);
 		
 		// Si ya existe un fichero para la base de datos
 		if (file.exists()) {
-			Connection conn = null;
 	        try {
 	        	// Inicializamos la conexón
 	            conn = DriverManager.getConnection("jdbc:sqlite:" + url);
@@ -50,15 +59,9 @@ public class DBConnection {
 	            
 	        } catch (SQLException e) {
 	            System.out.println(e.getMessage());
-	        } finally {
-	            try {
-	                if (conn != null) {
-	                    conn.close();
-	                }
-	            } catch (SQLException ex) {
-	                System.out.println(ex.getMessage());
-	            }
 	        }
+	        
+	        return conn;
 		} else {
 			File folder = new File(containerFolder);
 			// Si no existe el folder en donde deberia estar la base de datos lo creamos
@@ -68,7 +71,28 @@ public class DBConnection {
 			createAndInitializeDatabase(url);
 			
 			// Intentamos conectar de nuevo
-			connect(containerFolder, databaseName);
+			return connect();
 		}
     }
+	
+	/**
+	 * Crea una tabla con el nombre y columnas especificadas en la base de datos
+	 * 
+	 * @param tableName Nombre de la tabla a crear
+	 * @param columns Columnas a crear (ej: id integer primary key, nombre text not null, numero real)
+	 */
+	public static void createNewTable(String tableName, String columns) {
+		String sql = "CREATE TABLE " + tableName + "(\n" + columns + ")";
+		try {
+			Connection conn = connect();
+			System.out.println(sql);
+			Statement stmt = conn.createStatement();
+            // Create a new table
+            stmt.execute(sql);
+            
+            System.out.println("Tabla " + tableName + " creada correctamente");
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}	
+	}
 }
