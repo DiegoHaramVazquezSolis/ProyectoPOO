@@ -18,6 +18,8 @@ import java.sql.Statement;
  * https://www.sqlitetutorial.net/sqlite-java/sqlite-jdbc-driver/					Conexión a la base de datos
  * https://www.sqlitetutorial.net/sqlite-java/create-table/							Crear tabla
  * https://www.sqlitetutorial.net/sqlite-java/insert/								Insertar en una tabla
+ * https://www.sqlitetutorial.net/sqlite-java/update/								Actualizar registros en una tabla
+ * https://www.sqlitetutorial.net/sqlite-java/delete/								Eliminar registros de una tabla
  * https://www.sqlitetutorial.net/sqlite-java/select/								Seleccionar de una tabla
  *
  */
