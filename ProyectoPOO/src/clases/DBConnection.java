@@ -26,6 +26,7 @@ import java.sql.Statement;
  *
  */
 public class DBConnection {
+	private static Connection conn = null;
 	/**
      * Crea la base de datos
      * 
@@ -83,7 +84,6 @@ public class DBConnection {
 		String containerFolder = "C:/db/";
 		String databaseName = "test.db";
 
-		Connection conn = null;
 		// Construimos la ruta completa para acceder a la base de datos
 		String url = containerFolder + databaseName;
 		File file = new File(url);
@@ -92,7 +92,9 @@ public class DBConnection {
 		if (file.exists()) {
 	        try {
 	        	// Inicializamos la conexón
-	            conn = DriverManager.getConnection("jdbc:sqlite:" + url);
+	        	if (conn == null) {
+	        		conn = DriverManager.getConnection("jdbc:sqlite:" + url);
+	        	}
 	        } catch (SQLException e) {
 	            System.out.println(e.getMessage());
 	        }
@@ -128,6 +130,8 @@ public class DBConnection {
             System.out.println("Tabla " + tableName + " creada correctamente");
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			
 		}
 	}
 	
@@ -138,8 +142,10 @@ public class DBConnection {
 	 * @param columns Columnas especificadas con "," (ej: "id, codigo, nombre")
 	 * @param values Arreglo de valores a insertar (arreglo de objects, soporta tipos Integer, Float, Double y String)
 	 */
-	public static void insertIntoTable(String tableName, String columns, Object ...values) {
+	public static int insertIntoTable(String tableName, String columns, Object ...values) {
 		String sql = "INSERT INTO " + tableName + "(" + columns + ") VALUES(";
+		int updatedRows = 0;
+		
 		try {
 			Connection conn = connect();
 			for (int i = 0; i < values.length; i++) {
@@ -153,12 +159,13 @@ public class DBConnection {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			setValuesOnPreparedStatement(pstmt, values);
 			
-			pstmt.executeUpdate();
-            
-            System.out.println("Registro agregado correctamente");
+			updatedRows = pstmt.executeUpdate();
+			System.out.println("Registro agregado correctamente");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
+		return updatedRows;
 	}
 	
 	/**
@@ -168,9 +175,10 @@ public class DBConnection {
 	 * @param columns Columnas especificadas con "," (ej: "id, codigo, nombre")
 	 * @param values Arreglo de valores a insertar (arreglo de objects, soporta tipos Integer, Float, Double y String)
 	 */
-	public static void updateTableRecords(String tableName, String columns, String whereCondition, Object ...values) {
+	public static int updateTableRecords(String tableName, String columns, String whereCondition, Object ...values) {
 		String sql = "UPDATE " + tableName + " SET ";
 		String[] cols = columns.split(",");
+		int updatedRows = 0;
 		
 		try {
 			Connection conn = connect();
@@ -187,12 +195,14 @@ public class DBConnection {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			setValuesOnPreparedStatement(pstmt, values);
 			
-			int updatedRows = pstmt.executeUpdate();
+			updatedRows = pstmt.executeUpdate();
             
             System.out.println(updatedRows + " Registro(s) actualizado correctamente");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
+		return updatedRows;
 	}
 	
 	/**
@@ -200,19 +210,22 @@ public class DBConnection {
 	 * @param tableName Nombre de la tabla
 	 * @param whereCondition Condición where (opcional) para identificar valores a eliminar. SI SE ENVIAN "" SE ELIMINARAN TODOS LOS REGISTROS DE LA TABLA
 	 */
-	public static void deleteTableRecords(String tableName, String whereCondition) {
+	public static int deleteTableRecords(String tableName, String whereCondition) {
 		String sql = "DELETE FROM " + tableName + (whereCondition == "" ? "" : (" WHERE " + whereCondition));
+		int updatedRows = 0;
 		
 		try {
 			Connection conn = connect();
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			
-			int updatedRows = pstmt.executeUpdate();
+			updatedRows = pstmt.executeUpdate();
 			
 			System.out.println(updatedRows + " Registro(s) eliminados correctamente");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
+		return updatedRows;
 	}
 	
 	/**
