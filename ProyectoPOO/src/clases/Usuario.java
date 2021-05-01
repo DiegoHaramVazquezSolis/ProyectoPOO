@@ -93,6 +93,12 @@ public class Usuario {
     	return updatedRows;
     }
     
+    /**
+     * Elimina un usuario de la base de datos
+     * @param user Instancia de objeto, debe ser un administrador si se quiere eliminar usuarios
+     * @param id Id del usuario a eliminar
+     * @return 1 si se elimino con exito 0 si no fue ase
+     */
     public static int deleteUser(Usuario user, int id) {
     	int deletedRows = 0;
     	if (user.getAdmin()) {
@@ -104,6 +110,10 @@ public class Usuario {
     	return deletedRows;
     }
     
+    /**
+     * Obtiene y formatea todos los usuarios que hay en la tabla usuario de la base de datos
+     * @return ArrayList de usuarios con todos los usuarios de la tabla
+     */
     public static ArrayList<Usuario> getAllUsers() {
     	ArrayList<Usuario> listaDeUsuarios = new ArrayList<Usuario>();
     	ResultSet rs = DBConnection.selectQuery("IdUsuario, Nombre, admin", TablasDB.USUARIO, "");
