@@ -22,6 +22,7 @@ import java.sql.Statement;
  * https://www.sqlitetutorial.net/sqlite-java/delete/								Eliminar registros de una tabla
  * https://www.sqlitetutorial.net/sqlite-java/select/								Seleccionar de una tabla
  * https://www.sqlite.org/datatype3.html											SQLite Datatypes
+ * https://www.sqlitetutorial.net/sqlite-foreign-key/								SQLite Foreign Keys
  *
  */
 public class DBConnection {
