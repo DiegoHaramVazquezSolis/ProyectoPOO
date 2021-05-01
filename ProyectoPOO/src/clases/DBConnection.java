@@ -24,7 +24,7 @@ import java.sql.Statement;
  * https://www.sqlite.org/datatype3.html											SQLite Datatypes
  *
  */
-public abstract class DBConnection {
+public class DBConnection {
 	/**
      * Crea la base de datos
      * 
