@@ -21,15 +21,16 @@ import java.sql.Statement;
  * https://www.sqlitetutorial.net/sqlite-java/update/								Actualizar registros en una tabla
  * https://www.sqlitetutorial.net/sqlite-java/delete/								Eliminar registros de una tabla
  * https://www.sqlitetutorial.net/sqlite-java/select/								Seleccionar de una tabla
+ * https://www.sqlite.org/datatype3.html											SQLite Datatypes
  *
  */
-public class DBConnection {
+public abstract class DBConnection {
 	/**
      * Crea la base de datos
      * 
      * @param url Ruta completa en donde se creara la base de datos
      */
-    public static void createAndInitializeDatabase(String url) {
+    private static void createAndInitializeDatabase(String url) {
 
     	// Intenta crear la base de datos
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + url)) {
@@ -37,18 +38,47 @@ public class DBConnection {
         	// Si la conexión no es nula podemos asumir que la base de datos se creo correctamente
             if (conn != null) {
                 System.out.println("La base de datos ha sido creada correctamente");
+                createProyectTables(); // <= Esto podria o no ir aqui, yo digo que no
             }
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
+    
+    /**
+     * Este metodo no va aqui :v, solo lo guardare temporalmente, debe ir en alguna
+     * clase que inicialiaze el API
+     * 
+     * Crea todas las tablas necesarias para el proyecto
+     */
+    public static void createProyectTables() {
+    	createNewTable(TablasDB.USUARIO, "IdUsuario INTEGER primary key, Nombre TEXT NOT NULL, Password TEXT NOT NULL, admin INTEGER DEFAULT 0");
+    	createNewTable(TablasDB.CLIENTE, "IdCliente INTEGER primary key, Nombre TEXT NOT NULL, RFC TEXT NOT NULL, Telefono TEXT, Domicilio TEXT, FechaCreacion INTEGER NOT NULL");
+    	createNewTable(TablasDB.PROVEEDOR, "IdProveedor INTEGER primary key, Nombre TEXT NOT NULL, RFC TEXT NOT NULL, Telefono TEXT, Domicilio TEXT, RazonSocial TEXT, FechaCreacion INTEGER NOT NULL");
+    	createNewTable(TablasDB.CATEGORIA, "IdCategoria INTEGER primary key, Categoria TEXT NOT NULL");
+    	createNewTable(TablasDB.PRODUCTO, "IdProducto INTEGER primary key, Codigo TEXT NOT NULL, Nombre TEXT NOT NULL, Costo REAL NOT NULL, PRECIO REAL NOT NULL, Existencia REAL NOT NULL, IdCategoria INTEGER NOT NULL, " + setForeignKeyConstraint("IdCategoria", TablasDB.CATEGORIA));
+    	createNewTable(TablasDB.PRODUCTOPROVEEDOR, "IdProductoProveedor INTEGER primary key, Codigo TEXT NOT NULL, Costo REAL NOT NULL, IdProducto INTEGER NOT NULL, IdProveedor INTEGER NOT NULL, " + setForeignKeyConstraint("IdProducto", TablasDB.PRODUCTO) + ", " + setForeignKeyConstraint("IdProveedor", TablasDB.PROVEEDOR));
+    	createNewTable(TablasDB.TICKET, "IdTicket INTEGER primary key, SubTotal REAL NOT NULL, Impuesto REAL NOT NULL, fecha INTEGER NOT NULL, IdUsuario INTEGER NOT NULL, IdCliente INTEGER NOT NULL, " + setForeignKeyConstraint("IdUsuario", TablasDB.USUARIO) + ", " + setForeignKeyConstraint("IdCliente", TablasDB.CLIENTE));
+    	createNewTable(TablasDB.DETALLETICKET, "IdTicket INTEGER NOT NULL, IdProducto INTEGER NOT NULL, Precio REAL NOT NULL, Cantidad REAL NOT NULL, " + setForeignKeyConstraint("IdTicket", TablasDB.TICKET) + ", " + setForeignKeyConstraint("IdProducto", TablasDB.PRODUCTO));
+    }
+    
+    /**
+     * Genera un string con la sintaxis de llave foranea valida en SQLite
+     * 
+     * @param foreignKey Nombre de la llave foranea
+     * @param tableName Nombre de la tabla
+     * @return Sintaxis de llave foranea para sentencias de creación/modificación de tablas en la base de datos
+     */
+    public static String setForeignKeyConstraint(String foreignKey, String tableName) {
+    	return "FOREIGN KEY (" + foreignKey + ") REFERENCES " + tableName + " (" + foreignKey + ")";
+    }
 
     /**
      * Se conecta a la base de datos si existe, si no existe la crea
      * y despues se conecta
      */
-	private static Connection connect() {
+	public static Connection connect() {
 		String containerFolder = "C:/db/";
 		String databaseName = "test.db";
 
@@ -88,10 +118,11 @@ public class DBConnection {
 	 */
 	public static void createNewTable(String tableName, String columns) {
 		String sql = "CREATE TABLE " + tableName + "(\n" + columns + ")";
+
 		try {
 			Connection conn = connect();
 			Statement stmt = conn.createStatement();
-            stmt.execute(sql);
+			stmt.execute(sql);
             
             System.out.println("Tabla " + tableName + " creada correctamente");
 		} catch (SQLException e) {

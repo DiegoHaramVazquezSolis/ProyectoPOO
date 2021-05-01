@@ -4,10 +4,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import clases.DBConnection;
+import clases.TablasDB;
 
 public class TestDB {
 
 	public static void main(String[] args) {
+		// DBConnection.connect();
 		// DBConnection.createNewTable("PRODUCTOS", "id integer primary key, \ncodigo text not null, \nnombre text not null, \ncosto real not null, \nprecio real not null, \nexistencia real not null\n");
 		/*DBConnection.insertIntoTable("PRODUCTOS", "id, codigo, nombre, costo, precio, existencia", 1, "123456", "Producto 1", 15.50, 21.0, 0);
 		DBConnection.insertIntoTable("PRODUCTOS", "id, codigo, nombre, costo, precio, existencia", 2, "456321", "Producto 2", 30.50, 45.75, 10);*/
