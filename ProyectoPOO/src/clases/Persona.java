@@ -1,6 +1,6 @@
 package clases;
 
-public class Persona {
+public abstract class Persona {
 	//Declaramos atributos
     private String rfc, nombrePersona, telefono, domicilio;
     //Constructor
@@ -10,6 +10,7 @@ public class Persona {
         setTelefono(tel);
         setDomicilio(dom);
     }
+
     //Setters 
     public void setRfc(String rfc) {
         if (rfc.strip() != "") {

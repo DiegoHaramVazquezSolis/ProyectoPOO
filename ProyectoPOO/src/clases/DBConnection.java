@@ -240,6 +240,9 @@ public class DBConnection {
 					case "Integer":
 						pstmt.setInt(i + 1, (int) values[i]);
 						break;
+					case "Long":
+						pstmt.setLong(i + 1, (long) values[i]);
+						break;
 					case "Float":
 					case "Double":
 						pstmt.setDouble(i + 1, (double) values[i]);
