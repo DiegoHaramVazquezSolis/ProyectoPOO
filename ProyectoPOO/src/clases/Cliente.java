@@ -258,7 +258,8 @@ public class Cliente extends Persona implements Fecha {
 		+ " Fecha de registro: " + formatearFecha(this.getFechaDeCreacion()) + (this.getCid() > 0 ? (" Id: " + this.getCid()) : "");
 	}
 
-    public boolean equals(Cliente c)
+	@Override
+    public boolean equals(Object c)
     {
         if (!(c instanceof Cliente)) {
                 return false;
@@ -267,11 +268,11 @@ public class Cliente extends Persona implements Fecha {
         else{
             Cliente client = (Cliente) c;
             boolean flag1,flag2,flag3,flag4,flag5;
-            flag1= this.getNombrePer()== c.getNombrePer();
-            flag2= this.getRfc()== c.getRfc();
-            flag3= this.getTelefono()== c.getTelefono();
-            flag4= this.getDomicilio()==c.getDomicilio();
-            flag5= this.getCid()==c.getCid();
+            flag1= this.getNombrePer()== client.getNombrePer();
+            flag2= this.getRfc()== client.getRfc();
+            flag3= this.getTelefono()== client.getTelefono();
+            flag4= this.getDomicilio()==client.getDomicilio();
+            flag5= this.getCid()==client.getCid();
             
                 if (flag1 && flag2 && flag3 && flag4 && flag5) {
                 return true;
