@@ -32,4 +32,35 @@ public class Proveedor extends Persona{
     {
     return razonSocial;
     }
+    
+    
+    public String toString()
+    {
+  return "Nombre: " + this.getNombrePer() + " RFC: " + this.getRfc() + " Telefono: " + this.getTelefono() + " Domicilio: " + this.getDomicilio()
+        + " Razon Social: " + this.getRazon() + (Integer.valueOf(this.getPid())> 0 ? (" Id: " + this.getPid()) : "");
+    
+    }
+    
+    public boolean equals(Proveedor pr)
+    {
+    if (!(pr instanceof Proveedor)) {
+            return false;
+        }
+        
+    else{
+        Proveedor proveedor = (Proveedor) pr;
+        boolean flag1,flag2,flag3,flag4,flag5,flag6;
+        flag1= this.getNombrePer()== pr.getNombrePer();
+        flag2= this.getRfc()== pr.getRfc();
+        flag3= this.getTelefono()== pr.getTelefono();
+        flag4= this.getDomicilio()==pr.getDomicilio();
+        flag5= this.getPid()==pr.getPid();
+        flag6= this.getRazon()== pr.getRazon();
+        
+           if (flag1 && flag2 && flag3 && flag4 && flag5 && flag6) {
+            return true;
+        }
+    }
+    return false;
+    }
 }
