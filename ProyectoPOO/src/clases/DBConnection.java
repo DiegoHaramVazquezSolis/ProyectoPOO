@@ -21,15 +21,18 @@ import java.sql.Statement;
  * https://www.sqlitetutorial.net/sqlite-java/update/								Actualizar registros en una tabla
  * https://www.sqlitetutorial.net/sqlite-java/delete/								Eliminar registros de una tabla
  * https://www.sqlitetutorial.net/sqlite-java/select/								Seleccionar de una tabla
+ * https://www.sqlite.org/datatype3.html											SQLite Datatypes
+ * https://www.sqlitetutorial.net/sqlite-foreign-key/								SQLite Foreign Keys
  *
  */
 public class DBConnection {
+	private static Connection conn = null;
 	/**
      * Crea la base de datos
      * 
      * @param url Ruta completa en donde se creara la base de datos
      */
-    public static void createAndInitializeDatabase(String url) {
+    private static void createAndInitializeDatabase(String url) {
 
     	// Intenta crear la base de datos
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + url)) {
@@ -37,22 +40,50 @@ public class DBConnection {
         	// Si la conexión no es nula podemos asumir que la base de datos se creo correctamente
             if (conn != null) {
                 System.out.println("La base de datos ha sido creada correctamente");
+                createProyectTables(); // <= Esto podria o no ir aqui, yo digo que no
             }
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
+    
+    /**
+     * Este metodo no va aqui :v, solo lo guardare temporalmente, debe ir en alguna
+     * clase que inicialiaze el API
+     * 
+     * Crea todas las tablas necesarias para el proyecto
+     */
+    public static void createProyectTables() {
+    	createNewTable(TablasDB.USUARIO, "IdUsuario INTEGER primary key, Nombre TEXT NOT NULL, Password TEXT NOT NULL, admin INTEGER DEFAULT 0");
+    	createNewTable(TablasDB.CLIENTE, "IdCliente INTEGER primary key, Nombre TEXT NOT NULL, RFC TEXT NOT NULL, Telefono TEXT, Domicilio TEXT, FechaCreacion INTEGER NOT NULL");
+    	createNewTable(TablasDB.PROVEEDOR, "IdProveedor INTEGER primary key, Nombre TEXT NOT NULL, RFC TEXT NOT NULL, Telefono TEXT, Domicilio TEXT, RazonSocial TEXT, FechaCreacion INTEGER NOT NULL");
+    	createNewTable(TablasDB.CATEGORIA, "IdCategoria INTEGER primary key, Categoria TEXT NOT NULL");
+    	createNewTable(TablasDB.PRODUCTO, "IdProducto INTEGER primary key, Codigo TEXT NOT NULL, Nombre TEXT NOT NULL, Costo REAL NOT NULL, PRECIO REAL NOT NULL, Existencia REAL NOT NULL, IdCategoria INTEGER NOT NULL, " + setForeignKeyConstraint("IdCategoria", TablasDB.CATEGORIA));
+    	createNewTable(TablasDB.PRODUCTOPROVEEDOR, "IdProductoProveedor INTEGER primary key, Codigo TEXT NOT NULL, Costo REAL NOT NULL, IdProducto INTEGER NOT NULL, IdProveedor INTEGER NOT NULL, " + setForeignKeyConstraint("IdProducto", TablasDB.PRODUCTO) + ", " + setForeignKeyConstraint("IdProveedor", TablasDB.PROVEEDOR));
+    	createNewTable(TablasDB.TICKET, "IdTicket INTEGER primary key, SubTotal REAL NOT NULL, Impuesto REAL NOT NULL, fecha INTEGER NOT NULL, IdUsuario INTEGER NOT NULL, IdCliente INTEGER NOT NULL, " + setForeignKeyConstraint("IdUsuario", TablasDB.USUARIO) + ", " + setForeignKeyConstraint("IdCliente", TablasDB.CLIENTE));
+    	createNewTable(TablasDB.DETALLETICKET, "IdTicket INTEGER NOT NULL, IdProducto INTEGER NOT NULL, Precio REAL NOT NULL, Cantidad REAL NOT NULL, " + setForeignKeyConstraint("IdTicket", TablasDB.TICKET) + ", " + setForeignKeyConstraint("IdProducto", TablasDB.PRODUCTO));
+    }
+    
+    /**
+     * Genera un string con la sintaxis de llave foranea valida en SQLite
+     * 
+     * @param foreignKey Nombre de la llave foranea
+     * @param tableName Nombre de la tabla
+     * @return Sintaxis de llave foranea para sentencias de creación/modificación de tablas en la base de datos
+     */
+    public static String setForeignKeyConstraint(String foreignKey, String tableName) {
+    	return "FOREIGN KEY (" + foreignKey + ") REFERENCES " + tableName + " (" + foreignKey + ")";
+    }
 
     /**
      * Se conecta a la base de datos si existe, si no existe la crea
      * y despues se conecta
      */
-	private static Connection connect() {
+	public static Connection connect() {
 		String containerFolder = "C:/db/";
 		String databaseName = "test.db";
 
-		Connection conn = null;
 		// Construimos la ruta completa para acceder a la base de datos
 		String url = containerFolder + databaseName;
 		File file = new File(url);
@@ -61,7 +92,9 @@ public class DBConnection {
 		if (file.exists()) {
 	        try {
 	        	// Inicializamos la conexón
-	            conn = DriverManager.getConnection("jdbc:sqlite:" + url);
+	        	if (conn == null) {
+	        		conn = DriverManager.getConnection("jdbc:sqlite:" + url);
+	        	}
 	        } catch (SQLException e) {
 	            System.out.println(e.getMessage());
 	        }
@@ -88,14 +121,17 @@ public class DBConnection {
 	 */
 	public static void createNewTable(String tableName, String columns) {
 		String sql = "CREATE TABLE " + tableName + "(\n" + columns + ")";
+
 		try {
 			Connection conn = connect();
 			Statement stmt = conn.createStatement();
-            stmt.execute(sql);
+			stmt.execute(sql);
             
             System.out.println("Tabla " + tableName + " creada correctamente");
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			
 		}
 	}
 	
@@ -106,8 +142,10 @@ public class DBConnection {
 	 * @param columns Columnas especificadas con "," (ej: "id, codigo, nombre")
 	 * @param values Arreglo de valores a insertar (arreglo de objects, soporta tipos Integer, Float, Double y String)
 	 */
-	public static void insertIntoTable(String tableName, String columns, Object ...values) {
+	public static int insertIntoTable(String tableName, String columns, Object ...values) {
 		String sql = "INSERT INTO " + tableName + "(" + columns + ") VALUES(";
+		int updatedRows = 0;
+		
 		try {
 			Connection conn = connect();
 			for (int i = 0; i < values.length; i++) {
@@ -121,12 +159,13 @@ public class DBConnection {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			setValuesOnPreparedStatement(pstmt, values);
 			
-			pstmt.executeUpdate();
-            
-            System.out.println("Registro agregado correctamente");
+			updatedRows = pstmt.executeUpdate();
+			System.out.println("Registro agregado correctamente");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
+		return updatedRows;
 	}
 	
 	/**
@@ -136,9 +175,10 @@ public class DBConnection {
 	 * @param columns Columnas especificadas con "," (ej: "id, codigo, nombre")
 	 * @param values Arreglo de valores a insertar (arreglo de objects, soporta tipos Integer, Float, Double y String)
 	 */
-	public static void updateTableRecords(String tableName, String columns, String whereCondition, Object ...values) {
+	public static int updateTableRecords(String tableName, String columns, String whereCondition, Object ...values) {
 		String sql = "UPDATE " + tableName + " SET ";
 		String[] cols = columns.split(",");
+		int updatedRows = 0;
 		
 		try {
 			Connection conn = connect();
@@ -155,12 +195,14 @@ public class DBConnection {
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			setValuesOnPreparedStatement(pstmt, values);
 			
-			int updatedRows = pstmt.executeUpdate();
+			updatedRows = pstmt.executeUpdate();
             
             System.out.println(updatedRows + " Registro(s) actualizado correctamente");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
+		return updatedRows;
 	}
 	
 	/**
@@ -168,19 +210,22 @@ public class DBConnection {
 	 * @param tableName Nombre de la tabla
 	 * @param whereCondition Condición where (opcional) para identificar valores a eliminar. SI SE ENVIAN "" SE ELIMINARAN TODOS LOS REGISTROS DE LA TABLA
 	 */
-	public static void deleteTableRecords(String tableName, String whereCondition) {
+	public static int deleteTableRecords(String tableName, String whereCondition) {
 		String sql = "DELETE FROM " + tableName + (whereCondition == "" ? "" : (" WHERE " + whereCondition));
+		int updatedRows = 0;
 		
 		try {
 			Connection conn = connect();
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			
-			int updatedRows = pstmt.executeUpdate();
+			updatedRows = pstmt.executeUpdate();
 			
 			System.out.println(updatedRows + " Registro(s) eliminados correctamente");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		
+		return updatedRows;
 	}
 	
 	/**
@@ -194,6 +239,9 @@ public class DBConnection {
 				switch(values[i].getClass().getSimpleName()) {
 					case "Integer":
 						pstmt.setInt(i + 1, (int) values[i]);
+						break;
+					case "Long":
+						pstmt.setLong(i + 1, (long) values[i]);
 						break;
 					case "Float":
 					case "Double":
