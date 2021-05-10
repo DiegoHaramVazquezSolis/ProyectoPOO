@@ -33,7 +33,7 @@ public class Proveedor extends Persona{
     return razonSocial;
     }
     
-    
+    @Override
     public String toString()
     {
   return "Nombre: " + this.getNombrePer() + " RFC: " + this.getRfc() + " Telefono: " + this.getTelefono() + " Domicilio: " + this.getDomicilio()
@@ -41,7 +41,8 @@ public class Proveedor extends Persona{
     
     }
     
-    public boolean equals(Proveedor pr)
+    @Override
+    public boolean equals(Object pr)
     {
     if (!(pr instanceof Proveedor)) {
             return false;
@@ -50,12 +51,12 @@ public class Proveedor extends Persona{
     else{
         Proveedor proveedor = (Proveedor) pr;
         boolean flag1,flag2,flag3,flag4,flag5,flag6;
-        flag1= this.getNombrePer()== pr.getNombrePer();
-        flag2= this.getRfc()== pr.getRfc();
-        flag3= this.getTelefono()== pr.getTelefono();
-        flag4= this.getDomicilio()==pr.getDomicilio();
-        flag5= this.getPid()==pr.getPid();
-        flag6= this.getRazon()== pr.getRazon();
+        flag1= this.getNombrePer()== proveedor.getNombrePer();
+        flag2= this.getRfc()== proveedor.getRfc();
+        flag3= this.getTelefono()== proveedor.getTelefono();
+        flag4= this.getDomicilio()==proveedor.getDomicilio();
+        flag5= this.getPid()==proveedor.getPid();
+        flag6= this.getRazon()== proveedor.getRazon();
         
            if (flag1 && flag2 && flag3 && flag4 && flag5 && flag6) {
             return true;
