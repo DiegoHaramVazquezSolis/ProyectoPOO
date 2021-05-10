@@ -75,4 +75,31 @@ public class Producto {
     public Number getExistencias() {
         return existencia;
     }
+    
+    public String toString()
+    {
+    return "Nombre: " + this.getNombre() + " código: " + this.getCodigo() + " Categoria: " + this.getCategoria() + " Costo: $" + this.getCosto()
+        + " Precio: $" + getPrecio() + " Existencia: " + getExistencias();
+    
+    }
+    
+    public boolean equals(Producto p)
+    {
+    if (!(p instanceof Producto)) {
+            return false;
+        }
+        
+    else{
+        Producto producto = (Producto) p;
+        boolean flag1,flag2,flag3;
+        flag1= this.getNombre() == p.getNombre();
+        flag2= this.getCodigo()== p.getCodigo();
+        flag3= this.getCategoria()== p.getCategoria();
+        
+           if (flag1 && flag2 && flag3) {
+            return true;
+        }
+    }
+    return false;
+    }
 }
