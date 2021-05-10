@@ -76,6 +76,7 @@ public class Producto {
         return existencia;
     }
     
+    @Override
     public String toString()
     {
     return "Nombre: " + this.getNombre() + " código: " + this.getCodigo() + " Categoria: " + this.getCategoria() + " Costo: $" + this.getCosto()
@@ -83,7 +84,8 @@ public class Producto {
     
     }
     
-    public boolean equals(Producto p)
+    @Override
+    public boolean equals(Object p)
     {
     if (!(p instanceof Producto)) {
             return false;
@@ -92,9 +94,9 @@ public class Producto {
     else{
         Producto producto = (Producto) p;
         boolean flag1,flag2,flag3;
-        flag1= this.getNombre() == p.getNombre();
-        flag2= this.getCodigo()== p.getCodigo();
-        flag3= this.getCategoria()== p.getCategoria();
+        flag1= this.getNombre() == producto.getNombre();
+        flag2= this.getCodigo()== producto.getCodigo();
+        flag3= this.getCategoria()== producto.getCategoria();
         
            if (flag1 && flag2 && flag3) {
             return true;
