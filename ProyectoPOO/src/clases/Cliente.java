@@ -257,4 +257,27 @@ public class Cliente extends Persona implements Fecha {
 		return "Nombre: " + this.getNombrePer() + " RFC: " + this.getRfc() + " Telefono: " + this.getTelefono() + " Domicilio: " + this.getDomicilio()
 		+ " Fecha de registro: " + formatearFecha(this.getFechaDeCreacion()) + (this.getCid() > 0 ? (" Id: " + this.getCid()) : "");
 	}
+
+	@Override
+    public boolean equals(Object c)
+    {
+        if (!(c instanceof Cliente)) {
+                return false;
+            }
+            
+        else{
+            Cliente client = (Cliente) c;
+            boolean flag1,flag2,flag3,flag4,flag5;
+            flag1= this.getNombrePer()== client.getNombrePer();
+            flag2= this.getRfc()== client.getRfc();
+            flag3= this.getTelefono()== client.getTelefono();
+            flag4= this.getDomicilio()==client.getDomicilio();
+            flag5= this.getCid()==client.getCid();
+            
+                if (flag1 && flag2 && flag3 && flag4 && flag5) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -174,4 +174,33 @@ public class Producto {
     public Number getExistencias() {
         return existencia;
     }
+    
+    @Override
+    public String toString()
+    {
+    return "Nombre: " + this.getNombre() + " código: " + this.getCodigo() + " Categoria: " + this.getCategoria() + " Costo: $" + this.getCosto()
+        + " Precio: $" + getPrecio() + " Existencia: " + getExistencias();
+    
+    }
+    
+    @Override
+    public boolean equals(Object p)
+    {
+    if (!(p instanceof Producto)) {
+            return false;
+        }
+        
+    else{
+        Producto producto = (Producto) p;
+        boolean flag1,flag2,flag3;
+        flag1= this.getNombre() == producto.getNombre();
+        flag2= this.getCodigo()== producto.getCodigo();
+        flag3= this.getCategoria()== producto.getCategoria();
+        
+           if (flag1 && flag2 && flag3) {
+            return true;
+        }
+    }
+    return false;
+    }
 }
