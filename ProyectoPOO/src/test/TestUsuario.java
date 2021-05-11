@@ -2,16 +2,20 @@ package test;
 
 import java.util.ArrayList;
 
+
 import clases.Usuario;
 
 public class TestUsuario {
 
 	public static void main(String[] args) {
+		
 		// Print all users table
 		/* ArrayList<Usuario> users = Usuario.getAllUsers();
 		for (Usuario user : users) {
 			System.out.println(user.toString());
-		} */
+		} 
+
+		
 		
 		/* Usuario u1 = new Usuario("Diego", true);
 		Usuario.saveUserInDB(u1, "123456");
