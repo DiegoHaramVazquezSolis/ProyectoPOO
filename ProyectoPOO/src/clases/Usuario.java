@@ -42,7 +42,7 @@ public class Usuario {
      * null en caso de que el usuario no exista o las credenciales sean incorrectas
      */
 	public static Usuario userLogin(String name, String password) {
-    	ResultSet rs = DBConnection.selectQuery("*", TablasDB.USUARIO, " Nombre = '" + name + "' AND Password = " + password);
+    	ResultSet rs = DBConnection.selectQuery("*", TablasDB.USUARIO, " Nombre = '" + name + "' AND Password = '" + password + "'");
     	Usuario user = null;
 
     	try {
