@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Producto {
-	//Declaración de las variables
+	//Declaraciï¿½n de las variables
 	private int id;
     private String nombre, codigo ,categoria;
     private double costo, precio;
@@ -250,19 +250,19 @@ public class Producto {
     
     public void setNombre(String name) {
         if (name.strip() != "") {
-            //Acepta solo si no está vacio
+            //Acepta solo si no estï¿½ vacio
             this.nombre = name;
         }
     }
     public void setCodigo(String code) {
         if (code.strip() != "") {
-            //Acepta solo si no está vacio
+            //Acepta solo si no estï¿½ vacio
             this.codigo = code;
         }
     }
-    public void setCategoria(String  category) {
-        if (category.strip()!="") {
-            //Acepta solo si no está vacio
+    public void setCategoria(int  category) {
+        if (category<0) {
+            //Acepta solo si no estï¿½ vacio
             this.categoria = category;
         }
     }
@@ -273,7 +273,7 @@ public class Producto {
         }
     }
     public void setPrecio(double price) {
-        if (price > 0) {
+        if (price > 0) { 	
             //No debe de ser negativo
             this.precio = price;
         }
@@ -294,7 +294,7 @@ public class Producto {
     public String getCodigo() {
         return codigo;
     }
-    public String getCategoria() {
+    public int getCategoria() {
         return categoria;
     }
     public double getCosto() {
@@ -310,7 +310,7 @@ public class Producto {
     @Override
     public String toString()
     {
-	    return "Nombre: " + this.getNombre() + " código: " + this.getCodigo() + " Categoria: " + this.getCategoria() + " Costo: $" + this.getCosto()
+	    return "Nombre: " + this.getNombre() + " cï¿½digo: " + this.getCodigo() + " Categoria: " + this.getCategoria() + " Costo: $" + this.getCosto()
 	        + " Precio: $" + getPrecio() + " Existencia: " + getExistencias() + (idsProveedores.size() > 0 ? "\nLista de proveedores:\n" + getProveedoresNames() : "");
     }
     
