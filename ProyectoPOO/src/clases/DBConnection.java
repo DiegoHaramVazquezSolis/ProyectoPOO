@@ -26,7 +26,6 @@ import java.sql.Statement;
  *
  */
 public class DBConnection {
-	private static Connection conn = null;
 	/**
      * Crea la base de datos
      * 
@@ -40,40 +39,11 @@ public class DBConnection {
         	// Si la conexión no es nula podemos asumir que la base de datos se creo correctamente
             if (conn != null) {
                 System.out.println("La base de datos ha sido creada correctamente");
-                createProyectTables(); // <= Esto podria o no ir aqui, yo digo que no
             }
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-    }
-    
-    /**
-     * Este metodo no va aqui :v, solo lo guardare temporalmente, debe ir en alguna
-     * clase que inicialiaze el API
-     * 
-     * Crea todas las tablas necesarias para el proyecto
-     */
-    public static void createProyectTables() {
-    	createNewTable(TablasDB.USUARIO, "IdUsuario INTEGER primary key, Nombre TEXT NOT NULL, Password TEXT NOT NULL, admin INTEGER DEFAULT 0");
-    	createNewTable(TablasDB.CLIENTE, "IdCliente INTEGER primary key, Nombre TEXT NOT NULL, RFC TEXT NOT NULL, Telefono TEXT, Domicilio TEXT, FechaCreacion INTEGER NOT NULL");
-    	createNewTable(TablasDB.PROVEEDOR, "IdProveedor INTEGER primary key, Nombre TEXT NOT NULL, RFC TEXT NOT NULL, Telefono TEXT, Domicilio TEXT, RazonSocial TEXT, FechaCreacion INTEGER NOT NULL");
-    	createNewTable(TablasDB.CATEGORIA, "IdCategoria INTEGER primary key, Categoria TEXT NOT NULL");
-    	createNewTable(TablasDB.PRODUCTO, "IdProducto INTEGER primary key, Codigo TEXT NOT NULL, Nombre TEXT NOT NULL, Costo REAL NOT NULL, PRECIO REAL NOT NULL, Existencia REAL NOT NULL, IdCategoria INTEGER NOT NULL, " + setForeignKeyConstraint("IdCategoria", TablasDB.CATEGORIA));
-    	createNewTable(TablasDB.PRODUCTOPROVEEDOR, "IdProductoProveedor INTEGER primary key, Codigo TEXT NOT NULL, Costo REAL NOT NULL, IdProducto INTEGER NOT NULL, IdProveedor INTEGER NOT NULL, " + setForeignKeyConstraint("IdProducto", TablasDB.PRODUCTO) + ", " + setForeignKeyConstraint("IdProveedor", TablasDB.PROVEEDOR));
-    	createNewTable(TablasDB.TICKET, "IdTicket INTEGER primary key, SubTotal REAL NOT NULL, Impuesto REAL NOT NULL, fecha INTEGER NOT NULL, IdUsuario INTEGER NOT NULL, IdCliente INTEGER NOT NULL, " + setForeignKeyConstraint("IdUsuario", TablasDB.USUARIO) + ", " + setForeignKeyConstraint("IdCliente", TablasDB.CLIENTE));
-    	createNewTable(TablasDB.DETALLETICKET, "IdTicket INTEGER NOT NULL, IdProducto INTEGER NOT NULL, Precio REAL NOT NULL, Cantidad REAL NOT NULL, " + setForeignKeyConstraint("IdTicket", TablasDB.TICKET) + ", " + setForeignKeyConstraint("IdProducto", TablasDB.PRODUCTO));
-    }
-    
-    /**
-     * Genera un string con la sintaxis de llave foranea valida en SQLite
-     * 
-     * @param foreignKey Nombre de la llave foranea
-     * @param tableName Nombre de la tabla
-     * @return Sintaxis de llave foranea para sentencias de creación/modificación de tablas en la base de datos
-     */
-    public static String setForeignKeyConstraint(String foreignKey, String tableName) {
-    	return "FOREIGN KEY (" + foreignKey + ") REFERENCES " + tableName + " (" + foreignKey + ")";
     }
 
     /**
@@ -87,6 +57,7 @@ public class DBConnection {
 		// Construimos la ruta completa para acceder a la base de datos
 		String url = containerFolder + databaseName;
 		File file = new File(url);
+		Connection conn = null;
 		
 		// Si ya existe un fichero para la base de datos
 		if (file.exists()) {
@@ -120,14 +91,13 @@ public class DBConnection {
 	 * @param columns Columnas a crear (ej: id integer primary key, nombre text not null, numero real)
 	 */
 	public static void createNewTable(String tableName, String columns) {
-		String sql = "CREATE TABLE " + tableName + "(\n" + columns + ")";
+		String sql = "CREATE TABLE IF NOT EXISTS " + tableName + "(\n" + columns + ")";
 
 		try {
 			Connection conn = connect();
 			Statement stmt = conn.createStatement();
 			stmt.execute(sql);
-            
-            System.out.println("Tabla " + tableName + " creada correctamente");
+			stmt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -161,6 +131,7 @@ public class DBConnection {
 			
 			updatedRows = pstmt.executeUpdate();
 			System.out.println("Registro agregado correctamente");
+			pstmt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -196,7 +167,7 @@ public class DBConnection {
 			setValuesOnPreparedStatement(pstmt, values);
 			
 			updatedRows = pstmt.executeUpdate();
-            
+			
             System.out.println(updatedRows + " Registro(s) actualizado correctamente");
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -220,6 +191,7 @@ public class DBConnection {
 			
 			updatedRows = pstmt.executeUpdate();
 			
+			pstmt.close();
 			System.out.println(updatedRows + " Registro(s) eliminados correctamente");
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -250,6 +222,8 @@ public class DBConnection {
 					case "String":
 						pstmt.setString(i + 1, (String) values[i]);
 						break;
+					default:
+						System.out.println("Case not detected " + values[i].getClass().getSimpleName());
 				}
 			}
 		} catch (SQLException e) {

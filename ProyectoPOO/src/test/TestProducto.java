@@ -11,9 +11,9 @@ public class TestProducto {
 
 	
 	Producto.deleteAllProductRecords();
-	Producto test = new Producto("pantene",22.2,"ahsdasda",12.1,100);
+	Producto test = new Producto("pantene",22.2,"ahsdasda",12.1,100, "Shampoos");
 	Producto.addProductToDb(test);
-	Producto test2 = new Producto("PlatanoChiapas",2,"ahsdasda",5.90,100);
+	Producto test2 = new Producto("PlatanoChiapas",2,"ahsdasda",5.90,100, "Frutas");
 	Producto.addProductToDb(test2);
 		
 	Producto searched=	Producto.findProductByCode("ahsdasda");
@@ -23,7 +23,7 @@ public class TestProducto {
 
 	searched2.setNombre("PlatanoChiapasMamadisimo");
 	
-	Producto.updateProductById(searched2);
+	Producto.deleteProductByCode(searched2.getCodigo());
 	
 	
 	System.out.println(searched.getNombre());

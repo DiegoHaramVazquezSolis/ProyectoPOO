@@ -2,39 +2,54 @@ package clases;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Producto {
 	//Declaración de las variables
+	private int id;
     private String nombre, codigo ,categoria;
-
     private double costo, precio;
     private Number existencia;
-    private String[] idsProveedores;
+    private List<Integer> idsProveedores;
     
     
-    
-
-    public Producto(String name, double cost, String cod, double pri, int exis) 
+    public Producto(int id, String name, double cost, String cod, double pri, int exis, String cat) 
     {    //Constructor
-    	
-    	
+    	setId(id);
         setNombre(name);
         setCosto(cost);
         setCodigo(cod);
         setPrecio(pri);
-       // setCategoria(cat);
+        setCategoria(cat);
         setExistencias(exis);
         
-        idsProveedores= null;
+        idsProveedores= new ArrayList<Integer>();
+        //primera creacion
+        
+    }
+
+    public Producto(String name, double cost, String cod, double pri, int exis, String cat) 
+    {    //Constructor
+        setNombre(name);
+        setCosto(cost);
+        setCodigo(cod);
+        setPrecio(pri);
+        setCategoria(cat);
+        setExistencias(exis);
+        
+        idsProveedores= new ArrayList<Integer>();
         //primera creacion
         
     }
     
     
     public static int addProductToDb(Producto p) {
-    	//agregamos el objeto sacando los valores y metiendolos en una query 
+    	//agregamos el objeto sacando los valores y metiendolos en una query
     	
-    	return DBConnection.insertIntoTable(TablasDB.PRODUCTO,"Codigo, Nombre, Costo, Precio, Existencia",p.getCodigo(),p.getNombre(),p.getCosto(),p.getPrecio(),p.getExistencias());
+    	int catId = getOrCreateCategoryByName(p.getCategoria());
+    	
+    	return DBConnection.insertIntoTable(TablasDB.PRODUCTO,"Codigo, Nombre, Costo, Precio, Existencia, IdCategoria",p.getCodigo(),p.getNombre(),p.getCosto(),p.getPrecio(),p.getExistencias(), catId);
     	
     }
     public static int  deleteAllProductRecords() {
@@ -45,11 +60,22 @@ public class Producto {
     	
     	return a;
     }
-    public static int updateProductById(Producto updatedProduct) {
+    public static int deleteProductByCode(String code) {
     	//mandamos un objeto producto para hacer update estos deben tener el id 
     	int updatedRows = 0;
     	
-    		updatedRows = DBConnection.updateTableRecords(TablasDB.PRODUCTO,"Nombre, Costo, Precio, Existencia ","Codigo = '"+updatedProduct.getCodigo()+"'", updatedProduct.getNombre(),updatedProduct.getCosto(),updatedProduct.getPrecio(),updatedProduct.getExistencias());
+    		updatedRows = DBConnection.deleteTableRecords(TablasDB.PRODUCTO, "Codigo = '"+code+"'");
+    
+    	
+    	return updatedRows;
+    }
+    public static int updateProductByCode(String code, Producto updatedProduct) {
+    	//mandamos un objeto producto para hacer update estos deben tener el id 
+    	int updatedRows = 0;
+    	
+    	int catId = getOrCreateCategoryByName(updatedProduct.getCategoria());
+    	
+    	updatedRows = DBConnection.updateTableRecords(TablasDB.PRODUCTO,"Nombre, Costo, Precio, Existencia, IdCategoria","Codigo = '"+code+"'", updatedProduct.getNombre(),updatedProduct.getCosto(),updatedProduct.getPrecio(),updatedProduct.getExistencias(),catId);
     
     	
     	return updatedRows;
@@ -62,14 +88,21 @@ public class Producto {
     	ResultSet rs = DBConnection.selectQuery("*", TablasDB.PRODUCTO, "Codigo= '" + code + "'");
     	
     	try {
-    	rs.next();	
+    		rs.next();	
     	}
     	catch(SQLException P){
     		
     		P.printStackTrace();
     	}
     	
-    	return formatProduct(rs);
+    	Producto p = formatProduct(rs);
+    	try {
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return p;
     }
     
     public static Producto findProductByName(String name) {
@@ -85,10 +118,42 @@ public class Producto {
     		P.printStackTrace();
     		}
     	
-    	return formatProduct(rs);
+    	Producto p = formatProduct(rs);
+    	try {
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return p;
     }
     
-    
+    /**
+     * Obtiene y formatea todos los productos que hay en la tabla producto de la base de datos
+     * @return ArrayList de productos con todos los productos de la tabla
+     */
+    public static ArrayList<Producto> getAllProducts() {
+    	ArrayList<Producto> listaDeProductos = new ArrayList<Producto>();
+    	ResultSet rs = DBConnection.selectQuery("*", TablasDB.PRODUCTO, "");
+    	
+    	try {
+			while(!rs.isClosed() && rs.next()) {
+				int id = rs.getInt("IdProducto");
+				String nombre = rs.getString("Nombre");
+				String codigo = rs.getString("Codigo");
+				Double costo = rs.getDouble("Costo");
+				Double precio = rs.getDouble("Precio");
+				int existencia = rs.getInt("Existencia");
+				String cat = findProductCategoryNameById(rs.getInt("IdCategoria"));
+				
+				listaDeProductos.add(new Producto(id, nombre, costo, codigo, precio, existencia,cat));
+			}
+		} catch (SQLException e) {
+			//e.printStackTrace();
+		}
+    	
+    	return listaDeProductos;
+    }
     
     private static Producto formatProduct(ResultSet rs) {
     	
@@ -103,7 +168,9 @@ public class Producto {
     	Double cost=rs.getDouble("Costo");
     	Double pre=rs.getDouble("Precio");
     	int exi=rs.getInt("Existencia");
-    	a=new Producto(name,cost,cod,pre,exi);
+    	int id = rs.getInt("IdProducto");
+    	String cat = findProductCategoryNameById(rs.getInt("IdCategoria"));
+    	a=new Producto(id,name,cost,cod,pre,exi,cat);
     	}catch(SQLException e){
     		e.printStackTrace();
     	}
@@ -112,10 +179,72 @@ public class Producto {
     	return a;
     }
     
+    private static int findProductCategoryIdByName(String cat) {
+    	ResultSet rs = DBConnection.selectQuery("*", TablasDB.CATEGORIA, "Categoria = '" + cat + "'");
+    	
+    	try {
+    		if (rs.next()) {
+	    		int id = rs.getInt("IdCategoria");
+	    		rs.close();
+	    		return id;
+    		}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return 0;
+    }
+    
+    private static String findProductCategoryNameById(int id) {
+    	ResultSet rs = DBConnection.selectQuery("*", TablasDB.CATEGORIA, "IdCategoria = " + id);
+    	
+    	try {
+    		if (rs.next()) {
+	    		String cat = rs.getString("Categoria");
+	    		rs.close();
+				return cat;
+    		}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return "";
+    }
+    
+    private static int getOrCreateCategoryByName(String name) {
+    	// Buscamos el id de la categoria
+    	int catId = findProductCategoryIdByName(name);
+    	
+    	// Si la categoria no existe (es nueva)
+    	if (catId == 0) {
+    		// La agregamos en la base de datos
+    		int res = DBConnection.insertIntoTable(TablasDB.CATEGORIA, "Categoria", name);
+    		if (res > 0) {
+	    		// Buscamos su id
+	    		catId = findProductCategoryIdByName(name);
+    		}
+    	}
+    	
+    	return catId;
+    }
     
     
-    
-    
+    private List<String> getProveedoresNames() {
+    	List<String> names = new ArrayList<String>();
+    	for (int provId : idsProveedores) {
+    		ResultSet rs = DBConnection.selectQuery("Nombre", TablasDB.PROVEEDOR, "IdProveedor = " + provId);
+    		try {
+				if (rs.next()) {
+					names.add(rs.getString("Nombre"));
+					rs.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+    	}
+    	
+    	return names;
+    }
     
     
     
@@ -155,6 +284,9 @@ public class Producto {
             this.existencia = exist;
         }
     }
+    public void addToIdsProveedores(int value) {
+    	idsProveedores.add(value);
+    }
     //Getters 
     public String getNombre() {
         return nombre;
@@ -178,9 +310,8 @@ public class Producto {
     @Override
     public String toString()
     {
-    return "Nombre: " + this.getNombre() + " código: " + this.getCodigo() + " Categoria: " + this.getCategoria() + " Costo: $" + this.getCosto()
-        + " Precio: $" + getPrecio() + " Existencia: " + getExistencias();
-    
+	    return "Nombre: " + this.getNombre() + " código: " + this.getCodigo() + " Categoria: " + this.getCategoria() + " Costo: $" + this.getCosto()
+	        + " Precio: $" + getPrecio() + " Existencia: " + getExistencias() + (idsProveedores.size() > 0 ? "\nLista de proveedores:\n" + getProveedoresNames() : "");
     }
     
     @Override
@@ -203,4 +334,14 @@ public class Producto {
     }
     return false;
     }
+
+
+	public int getId() {
+		return id;
+	}
+
+
+	public void setId(int id) {
+		this.id = id;
+	}
 }

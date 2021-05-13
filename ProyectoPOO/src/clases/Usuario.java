@@ -50,6 +50,7 @@ public class Usuario {
 			int id = rs.getInt("IdUsuario");
 			String nombre = rs.getString("Nombre");
 			boolean admin = rs.getBoolean("admin");
+			rs.close();
 			
 			user = new Usuario(id, nombre, admin);
 		} catch (SQLException e) {
@@ -110,6 +111,21 @@ public class Usuario {
     	return deletedRows;
     }
     
+    public static Usuario findUserByName(String name) {
+    	ResultSet rs = DBConnection.selectQuery("IdUsuario, Nombre, Admin", TablasDB.USUARIO, " Nombre = '" + name + "'");
+    	Usuario us = null;
+		try {
+			if (rs.next()) {
+				us = new Usuario(rs.getInt("IdUsuario"), rs.getString("Nombre"), rs.getInt("Admin") == 1 ? true : false);
+				rs.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return us;
+    }
+    
     /**
      * Obtiene y formatea todos los usuarios que hay en la tabla usuario de la base de datos
      * @return ArrayList de usuarios con todos los usuarios de la tabla
@@ -126,6 +142,8 @@ public class Usuario {
 				
 				listaDeUsuarios.add(new Usuario(id, nombre, admin));
 			}
+			
+			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

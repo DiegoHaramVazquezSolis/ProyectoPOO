@@ -64,7 +64,14 @@ public class Proveedor extends Persona implements Fecha{
 			e.printStackTrace();
 		}
     	
-    	return formatProveedor(rs);
+    	Proveedor p = formatProveedor(rs);
+    	try {
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return p;
     }
     
     /**
@@ -80,7 +87,14 @@ public class Proveedor extends Persona implements Fecha{
 			e.printStackTrace();
 		}
     	
-    	return formatProveedor(rs);
+    	Proveedor p = formatProveedor(rs);
+    	try {
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return p;
     }
     
     /**
@@ -97,7 +111,14 @@ public class Proveedor extends Persona implements Fecha{
 			e.printStackTrace();
 		}
     	
-    	return formatProveedor(rs);
+    	Proveedor p = formatProveedor(rs);
+    	try {
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return p;
     }
     
     /**
@@ -151,7 +172,7 @@ public class Proveedor extends Persona implements Fecha{
     private static int deleteProveedorById(int id) {
     	int deletedRows = 0;
     	
-    	DBConnection.deleteTableRecords(TablasDB.PROVEEDOR, "IdProveedor = " + id);
+    	deletedRows = DBConnection.deleteTableRecords(TablasDB.PROVEEDOR, "IdProveedor = " + id);
     	
     	return deletedRows;
     }
@@ -279,7 +300,8 @@ public class Proveedor extends Persona implements Fecha{
     public String toString()
     {
   return "Nombre: " + this.getNombrePer() + " RFC: " + this.getRfc() + " Telefono: " + this.getTelefono() + " Domicilio: " + this.getDomicilio()
-        + " Razon Social: " + this.getRazon() + (Integer.valueOf(this.getPid())> 0 ? (" Id: " + this.getPid()) : "");
+        + " Razon Social: " + this.getRazon() + (Integer.valueOf(this.getPid())> 0 ? (" Id: " + this.getPid()) : "") + " Agregado el: "
+		+ formatearFecha(this.getFechaDeCreacion());
     
     }
     

@@ -57,7 +57,14 @@ public class Cliente extends Persona implements Fecha {
 			e.printStackTrace();
 		}
     	
-    	return formatClient(rs);
+    	Cliente c = formatClient(rs);
+    	try {
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return c;
     }
     
     /**
@@ -73,7 +80,14 @@ public class Cliente extends Persona implements Fecha {
 			e.printStackTrace();
 		}
     	
-    	return formatClient(rs);
+    	Cliente c = formatClient(rs);
+    	try {
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return c;
     }
     
     /**
@@ -90,7 +104,14 @@ public class Cliente extends Persona implements Fecha {
 			e.printStackTrace();
 		}
     	
-    	return formatClient(rs);
+    	Cliente c = formatClient(rs);
+    	try {
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return c;
     }
     
     /**
@@ -144,7 +165,7 @@ public class Cliente extends Persona implements Fecha {
     private static int deleteClientById(int id) {
     	int deletedRows = 0;
     	
-    	DBConnection.deleteTableRecords(TablasDB.CLIENTE, "IdCliente = " + id);
+    	deletedRows = DBConnection.deleteTableRecords(TablasDB.CLIENTE, "IdCliente = " + id);
     	
     	return deletedRows;
     }
@@ -197,6 +218,8 @@ public class Cliente extends Persona implements Fecha {
 					listaDeClientes.add(c);
 				}
 			}
+			
+			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
