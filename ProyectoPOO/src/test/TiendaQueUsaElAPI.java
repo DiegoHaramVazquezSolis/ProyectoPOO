@@ -24,9 +24,9 @@ public class TiendaQueUsaElAPI {
 		boolean firstTime = false;
 		
 		List<Usuario> ul = ComercioAPI.obtenerUsuarios();
-		Usuario user = new Usuario(1, "Diego", true);
+		Usuario user = null;
 		
-		/*while (ul.isEmpty()) {
+		while (ul.isEmpty()) {
 			firstTime = true;
 			createDefaultUser();
 			ul = ComercioAPI.obtenerUsuarios();
@@ -38,7 +38,7 @@ public class TiendaQueUsaElAPI {
 			}
 		} else {
 			user = ul.get(0);
-		}*/
+		}
 
 		boolean repeat = true;
 		
