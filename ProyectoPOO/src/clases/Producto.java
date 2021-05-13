@@ -5,7 +5,9 @@ import java.sql.SQLException;
 
 public class Producto {
 	//Declaración de las variables
-    private String nombre, codigo ,categoria;
+    private String nombre, codigo;
+    
+    private int categoria;
 
     private double costo, precio;
     private Number existencia;
@@ -22,7 +24,7 @@ public class Producto {
         setCosto(cost);
         setCodigo(cod);
         setPrecio(pri);
-       // setCategoria(cat);
+        //setCategoria();
         setExistencias(exis);
         
         idsProveedores= null;
@@ -103,6 +105,7 @@ public class Producto {
     	Double cost=rs.getDouble("Costo");
     	Double pre=rs.getDouble("Precio");
     	int exi=rs.getInt("Existencia");
+    	//int cat=rs.getInt("IdCategoria");
     	a=new Producto(name,cost,cod,pre,exi);
     	}catch(SQLException e){
     		e.printStackTrace();
@@ -131,8 +134,8 @@ public class Producto {
             this.codigo = code;
         }
     }
-    public void setCategoria(String  category) {
-        if (category.strip()!="") {
+    public void setCategoria(int  category) {
+        if (category<0) {
             //Acepta solo si no está vacio
             this.categoria = category;
         }
@@ -144,7 +147,7 @@ public class Producto {
         }
     }
     public void setPrecio(double price) {
-        if (price > 0) {
+        if (price > 0) { 	
             //No debe de ser negativo
             this.precio = price;
         }
@@ -162,7 +165,7 @@ public class Producto {
     public String getCodigo() {
         return codigo;
     }
-    public String getCategoria() {
+    public int getCategoria() {
         return categoria;
     }
     public double getCosto() {

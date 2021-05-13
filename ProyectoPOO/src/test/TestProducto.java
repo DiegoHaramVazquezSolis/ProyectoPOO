@@ -13,7 +13,7 @@ public class TestProducto {
 	Producto.deleteAllProductRecords();
 	Producto test = new Producto("pantene",22.2,"ahsdasda",12.1,100);
 	Producto.addProductToDb(test);
-	Producto test2 = new Producto("PlatanoChiapas",2,"ahsdasda",5.90,100);
+	Producto test2 = new Producto("PlatanoChiapas",2,"FRUTA",5.90,100);
 	Producto.addProductToDb(test2);
 		
 	Producto searched=	Producto.findProductByCode("ahsdasda");
