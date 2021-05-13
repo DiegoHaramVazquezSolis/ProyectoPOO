@@ -9,6 +9,7 @@ import javax.swing.JPasswordField;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class TiendaQueUsaElAPI {
@@ -65,6 +66,7 @@ public class TiendaQueUsaElAPI {
 					break;
 				case "4":
 					List<Producto> lp = ComercioAPI.obtenerProductos();
+					Collections.sort(lp, new ProductoPriceComparator());
 					for (Producto prod : lp) {
 						System.out.println(prod.toString());
 					}

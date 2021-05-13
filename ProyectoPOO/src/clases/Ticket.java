@@ -135,6 +135,7 @@ public Ticket(double subtotal, double iva,Cliente c,Usuario u) {
     @Override 
     public String toString() {
     	String rtn="------Empresa Fantasma---------\n";
+    	rtn=rtn+"Fecha: "+this.formatearFecha(this.getFechaDeCreacion())+" \n";
     	rtn=rtn+"\n\n";
     	if (this.getCliente() != null) {
     		rtn=rtn+"Cliente: "+this.getCliente().getNombrePer()+" \n";

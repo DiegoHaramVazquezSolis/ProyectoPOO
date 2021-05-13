@@ -52,7 +52,7 @@ public class TestDB {
 		
 		// DBConnection.deleteTableRecords("PRODUCTOS", "id = 1");
 		// DBConnection.deleteTableRecords("PRODUCTOS", "");
-		DBConnection.createProyectTables();
+		// DBConnection.createProyectTables();
 	}
 
 }

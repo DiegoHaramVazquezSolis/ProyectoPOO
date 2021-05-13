@@ -339,7 +339,7 @@ public class Producto {
     public String toString()
     {
 	    return "Nombre: " + this.getNombre() + " c�digo: " + this.getCodigo() + " Categoria: " + this.getCategoria() + " Costo: $" + this.getCosto()
-	        + " Precio: $" + getPrecio() + " Existencia: " + getExistencias() + (idsProveedores.size() > 0 ? "\nLista de proveedores:\n" + getProveedoresNames() : "");
+	        + " Precio: $" + getPrecio() + " Existencia: " + getExistencias() + (idsProveedores.size() > 0 ? "\nLista de proveedores:" + getProveedoresNames() : "");
     }
     
     @Override
