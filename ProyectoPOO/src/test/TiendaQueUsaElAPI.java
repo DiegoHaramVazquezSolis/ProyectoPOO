@@ -1,6 +1,5 @@
 package test;
 
-import clases.ComercioAPI;
 import clases.*;
 
 import javax.swing.JLabel;
@@ -8,23 +7,38 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TiendaQueUsaElAPI {
 
 	public static void main(String[] args) {
+		/*ResultSet rs = DBConnection.selectQueryOrderBy("IdTicket", TablasDB.TICKET, "IdTicket DESC");
+		try {
+			while (rs.next()) {
+				System.out.println(rs.getInt("IdTicket"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}*/
+		/*DBConnection.deleteTableRecords(TablasDB.TICKET, "");
+		DBConnection.deleteTableRecords(TablasDB.DETALLETICKET, "");*/
 		ComercioAPI.init();
 		
 		int res = 0;
 		Producto p = null;
 		Proveedor pr = null;
 		Cliente c = null;
+		String codigoONombre;
 		boolean firstTime = false;
 		
 		List<Usuario> ul = ComercioAPI.obtenerUsuarios();
-		Usuario user = null;
+		Usuario user = new Usuario(1, "Diego", true);
 		
-		while (ul.isEmpty()) {
+		/*while (ul.isEmpty()) {
 			firstTime = true;
 			createDefaultUser();
 			ul = ComercioAPI.obtenerUsuarios();
@@ -36,7 +50,7 @@ public class TiendaQueUsaElAPI {
 			}
 		} else {
 			user = ul.get(0);
-		}
+		}*/
 
 		boolean repeat = true;
 		
@@ -181,6 +195,62 @@ public class TiendaQueUsaElAPI {
 					}
 					break;
 				case "19":
+					boolean continuar = true;
+					List<Producto> plist = new ArrayList<Producto>();
+					double subtotal = 0;
+					
+					while(continuar) {
+						codigoONombre = JOptionPane.showInputDialog("Inserte nombre o codigo del producto:");
+						p = ComercioAPI.buscarProductoConCodigo(codigoONombre);
+						if (p == null) {
+							p = ComercioAPI.buscarProductoConNombre(codigoONombre);
+						}
+						
+						if (p == null) {
+							printObject(p, "No se encontro un producto con este nombre o codigo");
+						} else {
+							int cantidad = Integer.parseInt(JOptionPane.showInputDialog("Cantidad:"));
+							if (p.getExistencias().intValue() > 0) {
+								if (p.getExistencias().intValue() >= cantidad) {
+									p.setExistencias(cantidad);
+									subtotal += p.getPrecio() * cantidad;
+									plist.add(p);
+								} else {
+									printObject(null, "La cantidad pedida es mas de la disponible");
+								}
+							} else {
+								printObject(null, "No hay suficiente producto");
+							}
+						}
+						String continuarString = JOptionPane.showInputDialog("Continuar (y/n)");
+						System.out.println(continuarString);
+						continuar = continuarString.equals("y");
+					}
+					
+					ComercioAPI.crearTicket(subtotal, subtotal * .16, null, user, plist);
+					break;
+				case "20":
+					List<Ticket> lTickets = ComercioAPI.obtenerTicketsDelDia(LocalDate.now());
+					for (Ticket tick : lTickets) {
+						System.out.println(tick.toString());
+					}
+					break;
+				case "21":
+					codigoONombre = JOptionPane.showInputDialog("Inserte nombre o codigo del producto:");
+					p = ComercioAPI.buscarProductoConCodigo(codigoONombre);
+					if (p == null) {
+						p = ComercioAPI.buscarProductoConNombre(codigoONombre);
+					}
+					
+					if (p == null) {
+						printObject(p, "No se encontro un producto con este nombre o codigo");
+					} else {
+						int cantidad = Integer.parseInt(JOptionPane.showInputDialog("Existencia actualizada:"));
+						p.setExistencias(cantidad);
+						ComercioAPI.actualizarProducto(p.getCodigo(), p);
+					}
+					break;
+				case "22":
 					repeat = false;
 					break;
 			}
@@ -207,6 +277,9 @@ public class TiendaQueUsaElAPI {
 				".-Buscar cliente por RFC\n",
 				".-Eliminar cliente\n",
 				".-Ver todos los clientes\n",
+				".-Realizar venta\n",
+				".-Revisar ticket de hoy\n",
+				".-Resurtir producto\n",
 				".-Salir"
 		};
 		

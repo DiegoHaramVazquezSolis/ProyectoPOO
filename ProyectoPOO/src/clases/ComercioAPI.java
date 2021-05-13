@@ -2,6 +2,7 @@ package clases;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 
 public class ComercioAPI {
@@ -24,7 +25,7 @@ public class ComercioAPI {
     	DBConnection.createNewTable(TablasDB.CATEGORIA, "IdCategoria INTEGER primary key, Categoria TEXT NOT NULL");
     	DBConnection.createNewTable(TablasDB.PRODUCTO, "IdProducto INTEGER primary key, Codigo TEXT NOT NULL UNIQUE, Nombre TEXT NOT NULL, Costo REAL NOT NULL, PRECIO REAL NOT NULL, Existencia REAL NOT NULL, IdCategoria INTEGER NOT NULL, " + setForeignKeyConstraint("IdCategoria", TablasDB.CATEGORIA));
     	DBConnection.createNewTable(TablasDB.PRODUCTOPROVEEDOR, "IdProductoProveedor INTEGER primary key, Codigo TEXT NOT NULL, Costo REAL NOT NULL, IdProducto INTEGER NOT NULL, IdProveedor INTEGER NOT NULL, " + setForeignKeyConstraint("IdProducto", TablasDB.PRODUCTO) + ", " + setForeignKeyConstraint("IdProveedor", TablasDB.PROVEEDOR));
-    	DBConnection.createNewTable(TablasDB.TICKET, "IdTicket INTEGER primary key, SubTotal REAL NOT NULL, Impuesto REAL NOT NULL, fecha INTEGER NOT NULL, IdUsuario INTEGER NOT NULL, IdCliente INTEGER NOT NULL, " + setForeignKeyConstraint("IdUsuario", TablasDB.USUARIO) + ", " + setForeignKeyConstraint("IdCliente", TablasDB.CLIENTE));
+    	DBConnection.createNewTable(TablasDB.TICKET, "IdTicket INTEGER primary key, SubTotal REAL NOT NULL, Impuesto REAL NOT NULL, fecha INTEGER NOT NULL, IdUsuario INTEGER NOT NULL, IdCliente INTEGER, " + setForeignKeyConstraint("IdUsuario", TablasDB.USUARIO) + ", " + setForeignKeyConstraint("IdCliente", TablasDB.CLIENTE));
     	DBConnection.createNewTable(TablasDB.DETALLETICKET, "IdTicket INTEGER NOT NULL, IdProducto INTEGER NOT NULL, Precio REAL NOT NULL, Cantidad REAL NOT NULL, " + setForeignKeyConstraint("IdTicket", TablasDB.TICKET) + ", " + setForeignKeyConstraint("IdProducto", TablasDB.PRODUCTO));
     }
     
@@ -215,6 +216,54 @@ public class ComercioAPI {
     // #endRegion Proveedor
     
     // #region Ticket
+    
+    public static int crearTicket(double subtotal, double impuesto, Cliente c, Usuario u, List<Producto> prods) {
+    	int res = 0;
+    	res = Ticket.saveTicketDB(new Ticket(subtotal, impuesto, c, u));
+    	
+    	ResultSet rs = DBConnection.selectQueryOrderBy("IdTicket", TablasDB.TICKET, "IdTicket DESC");
+    	try {
+			rs.next();
+			int idTicket = rs.getInt("IdTicket");
+			rs.close();
+			int prevRes = res;
+	    	for (Producto p : prods) {
+	    		res += DBConnection.insertIntoTable(TablasDB.DETALLETICKET, "IdTicket, IdProducto, Precio, Cantidad", idTicket, p.getId(), p.getPrecio(), p.getExistencias());
+	    		if (res > prevRes) {
+	    			Producto updatedProduct = Producto.findProductById(p.getId());
+	    			updatedProduct.setExistencias(updatedProduct.getExistencias().intValue() - p.getExistencias().intValue());
+	    			Producto.updateProductByCode(updatedProduct.getCodigo(), updatedProduct);
+	    		}
+	    		
+	    		prevRes = res;
+	    	}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return res == prods.size() + 1 ? 1 : 0;
+    }
+    
+    public static List<Ticket> obtenerTicketsDelDia(LocalDate day) {
+    	List<Ticket> tl = Ticket.getTicketByDate(day);
+    	
+    	for (Ticket t : tl) {
+    	
+	    	ResultSet rs = DBConnection.selectQuery("*", TablasDB.DETALLETICKET, "IdTicket = " + t.getFolio());
+	    	
+	    	try {
+				while (rs.next()) {
+					Producto p = new Producto(rs.getInt("IdProducto"), rs.getDouble("Precio"), rs.getInt("Cantidad"));
+					t.addToProductos(p);
+				}
+				rs.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+    	}
+    	
+    	return tl;
+    }
     
     // #endRegion Ticket
 }

@@ -6,13 +6,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Producto {
-	//Declaraciï¿½n de las variables
+	//Declaración de las variables
 	private int id;
     private String nombre, codigo ,categoria;
     private double costo, precio;
     private Number existencia;
     private List<Integer> idsProveedores;
     
+    public Producto(int id, double precio, int exis) 
+    {    //Constructor
+    	setId(id);
+        setPrecio(precio);
+        setExistencias(exis);
+        
+        idsProveedores= new ArrayList<Integer>();
+        //primera creacion
+        
+    }
     
     public Producto(int id, String name, double cost, String cod, double pri, int exis, String cat) 
     {    //Constructor
@@ -88,7 +98,28 @@ public class Producto {
     	ResultSet rs = DBConnection.selectQuery("*", TablasDB.PRODUCTO, "Codigo= '" + code + "'");
     	
     	try {
-    		rs.next();	
+    		rs.next();
+    	}
+    	catch(SQLException P){
+    		
+    		P.printStackTrace();
+    	}
+    	
+    	Producto p = formatProduct(rs);
+    	try {
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return p;
+    }
+    
+    public static Producto findProductById(int id) {
+    	ResultSet rs = DBConnection.selectQuery("*", TablasDB.PRODUCTO, "IdProducto= " + id + "");
+    	
+    	try {
+    		rs.next();
     	}
     	catch(SQLException P){
     		
@@ -260,11 +291,8 @@ public class Producto {
             this.codigo = code;
         }
     }
-    public void setCategoria(int  category) {
-        if (category<0) {
-            //Acepta solo si no estï¿½ vacio
-            this.categoria = category;
-        }
+    public void setCategoria(String category) {
+        this.categoria = category;
     }
     public void setCosto(double cost) {
         if (cost > 0) {
@@ -294,7 +322,7 @@ public class Producto {
     public String getCodigo() {
         return codigo;
     }
-    public int getCategoria() {
+    public String getCategoria() {
         return categoria;
     }
     public double getCosto() {

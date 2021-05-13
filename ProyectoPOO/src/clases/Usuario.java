@@ -126,6 +126,21 @@ public class Usuario {
 		return us;
     }
     
+    public static Usuario findUserById(int id) {
+    	ResultSet rs = DBConnection.selectQuery("IdUsuario, Nombre, Admin", TablasDB.USUARIO, " IdUsuario = " + id + "");
+    	Usuario us = null;
+		try {
+			if (rs.next()) {
+				us = new Usuario(rs.getInt("IdUsuario"), rs.getString("Nombre"), rs.getInt("Admin") == 1 ? true : false);
+				rs.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return us;
+    }
+    
     /**
      * Obtiene y formatea todos los usuarios que hay en la tabla usuario de la base de datos
      * @return ArrayList de usuarios con todos los usuarios de la tabla

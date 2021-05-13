@@ -128,10 +128,9 @@ public class DBConnection {
 			
 			PreparedStatement pstmt = conn.prepareStatement(sql);
 			setValuesOnPreparedStatement(pstmt, values);
-			
 			updatedRows = pstmt.executeUpdate();
-			System.out.println("Registro agregado correctamente");
 			pstmt.close();
+			System.out.println("Registro agregado correctamente");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -240,6 +239,24 @@ public class DBConnection {
 	 */
 	public static ResultSet selectQuery(String valuesToSelect, String tableName, String whereCondition) {
 		String sql = "SELECT " + valuesToSelect + " FROM " + tableName + (whereCondition == "" ? "" : (" WHERE " + whereCondition));
+		ResultSet rs = null;
+		
+		System.out.println(sql);
+		
+		Connection conn = connect();
+		Statement stmt;
+		try {
+			stmt = conn.createStatement();
+			rs = stmt.executeQuery(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return rs;
+	}
+	
+	public static ResultSet selectQueryOrderBy(String valuesToSelect, String tableName, String orderByCondition) {
+		String sql = "SELECT " + valuesToSelect + " FROM " + tableName + (orderByCondition == "" ? "" : (" ORDER BY " + orderByCondition));
 		ResultSet rs = null;
 		
 		System.out.println(sql);

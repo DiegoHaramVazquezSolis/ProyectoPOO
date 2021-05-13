@@ -44,6 +44,24 @@ public class Cliente extends Persona implements Fecha {
     	return DBConnection.insertIntoTable(TablasDB.CLIENTE, "Nombre, RFC, Telefono, Domicilio, FechaCreacion", c.getNombrePer(), c.getRfc(), c.getTelefono(), c.getDomicilio(), createdAt);
     }
     
+    public static Cliente findClientById(int id) {
+    	ResultSet rs = DBConnection.selectQuery("*", TablasDB.CLIENTE, "Nombre = " + id + "");
+    	try {
+			rs.next();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	Cliente c = formatClient(rs);
+    	try {
+			rs.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+    	
+    	return c;
+    }
+    
     /**
      * Busca un cliente con base en su nombre
      * @param name Nombre del cliente a buscar
