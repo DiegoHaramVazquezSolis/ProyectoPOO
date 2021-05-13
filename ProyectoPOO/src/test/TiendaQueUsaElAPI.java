@@ -7,8 +7,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,16 +14,6 @@ import java.util.List;
 public class TiendaQueUsaElAPI {
 
 	public static void main(String[] args) {
-		/*ResultSet rs = DBConnection.selectQueryOrderBy("IdTicket", TablasDB.TICKET, "IdTicket DESC");
-		try {
-			while (rs.next()) {
-				System.out.println(rs.getInt("IdTicket"));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}*/
-		/*DBConnection.deleteTableRecords(TablasDB.TICKET, "");
-		DBConnection.deleteTableRecords(TablasDB.DETALLETICKET, "");*/
 		ComercioAPI.init();
 		
 		int res = 0;
